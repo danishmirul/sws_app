@@ -1,0 +1,97 @@
+{
+  "project_info": {
+    "project_number": "1059038373537",
+    "project_id": "smartwheelchairsystem-67d9b",
+    "storage_bucket": "smartwheelchairsystem-67d9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059038373537:android:864bdec3bab891568f72e0",
+        "android_client_info": {
+          "package_name": "com.example.sws_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcS_7Rgm3U0gXmhrJJZcDrp7FulNtjAqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059038373537:android:b550f490fcc70c788f72e0",
+        "android_client_info": {
+          "package_name": "com.example.sws_camera"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcS_7Rgm3U0gXmhrJJZcDrp7FulNtjAqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059038373537:android:0ad42130a19de2d18f72e0",
+        "android_client_info": {
+          "package_name": "com.example.sws_nav"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcS_7Rgm3U0gXmhrJJZcDrp7FulNtjAqk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1059038373537-3hcon9psvaqkp35cs11nnep8tlepo2tt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
