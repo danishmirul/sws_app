@@ -54,6 +54,7 @@ class _MainScreen extends State<MainScreen> {
   String speed = '60';
   bool move = false;
   bool collided = false;
+  bool reversing = false;
   bool readyNavigate = false;
   bool readBattery = false;
   bool readCollision = false;
@@ -61,7 +62,7 @@ class _MainScreen extends State<MainScreen> {
   List<int> receivedBytes = [];
   String receivedMsg = '';
   // double _value = 90.0;
-  int seconds = 0;
+  int hundredMiliSeconds = 0;
 
   List<Direction> directions;
   Direction _direction;
@@ -100,14 +101,14 @@ class _MainScreen extends State<MainScreen> {
   }
 
   void readSensors() {
-    if (seconds == 1 || seconds % 300 == 0) {
+    if (hundredMiliSeconds == 1 || hundredMiliSeconds % 300000 == 0) {
       _sendMessage('@b'); // Read battery every 5 minutes
       readBattery = true;
     }
 
     if (readyNavigate) {
       // Read when navigation UI is open
-      if (seconds % 2 == 0) {
+      if (hundredMiliSeconds % 2 == 0) {
         // Alternate reading
         _sendMessage('@c');
         readCollision = true;
@@ -251,8 +252,15 @@ class _MainScreen extends State<MainScreen> {
       } else if (readDistance) {
         // Distance Sensor Signal
 
+
+
         // extract out #
         String _dataString = dataString.substring(1);
+
+        if(double.tryParse(_dataString) < 13 && !reversing){
+          collided = true;
+          updateDirection('Stop');
+        }
         msg = Message(
             wheelchairId: _wheelchair.uid,
             whom: 1,
@@ -285,18 +293,23 @@ class _MainScreen extends State<MainScreen> {
         String newLabel = '';
 
         if (text.contains('!f00')) {
+          reversing = false;
           newLabel = 'Movement direction';
           newText = 'Request: STOP;';
         } else if (text.contains('!f')) {
+          reversing = false;
           newLabel = 'Movement direction';
           newText = 'Request: FORWARD; Speed: $speed;';
         } else if (text.contains('!b')) {
+          reversing = true;
           newLabel = 'Movement direction';
           newText = 'Request: BACKWARD; Speed: $speed;';
         } else if (text.contains('!r')) {
+          reversing = false;
           newLabel = 'Movement direction';
           newText = 'Request: RIGHT; Speed: $speed;';
         } else if (text.contains('!l')) {
+          reversing = false;
           newLabel = 'Movement direction';
           newText = 'Request: LEFT; Speed: $speed;';
         } else if (text == '@d') {
@@ -452,8 +465,8 @@ class _MainScreen extends State<MainScreen> {
     readBattery = false;
     readCollision = false;
     readDistance = false;
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
-      ++seconds;
+    timer = Timer.periodic(Duration(milliseconds: 100), (Timer t) {
+      ++hundredMiliSeconds;
       if (isConnected && !readBattery && !readCollision && !readDistance) {
         readSensors();
       }
