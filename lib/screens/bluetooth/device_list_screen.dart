@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sws_app/components/connection.dart';
 import 'package:sws_app/models/wheelchair.dart';
 import 'package:sws_app/screens/main/main_screen.dart';
-import 'package:sws_app/screens/main/chat_page.dart';
 import 'package:sws_app/services/firestore_service.dart';
 
 class DeviceListScreen extends StatelessWidget {
