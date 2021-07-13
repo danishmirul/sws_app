@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sws_app/components/connection.dart';
+import 'package:sws_app/components/device.dart';
 import 'package:sws_app/models/wheelchair.dart';
 import 'package:sws_app/screens/main/main_screen.dart';
 import 'package:sws_app/services/firestore_service.dart';
@@ -16,11 +19,11 @@ class DeviceListScreen extends StatelessWidget {
         title: Text('Connection'),
       ),
       body: SelectBondedDevicePage(
-        onCahtPage: (device1) async {
-          BluetoothDevice device = device1;
+        callBack: (device) async {
+          BluetoothDevice _device = device;
 
-          Wheelchair _wheelchair = await FirestoreService()
-              .getWheelchairDevice(name: device.name, address: device.address);
+          Wheelchair _wheelchair = await FirestoreService().getWheelchairDevice(
+              name: _device.name, address: _device.address);
 
           if (_wheelchair != null) {
             Navigator.push(
@@ -28,7 +31,7 @@ class DeviceListScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) {
                   return MainScreen(
-                    server: device,
+                    server: _device,
                     wheelchair: _wheelchair,
                   );
                 },

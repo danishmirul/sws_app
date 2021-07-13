@@ -2,15 +2,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:sws_app/components/device.dart';
+import 'package:sws_app/components/loading.dart';
+import 'package:sws_app/models/wheelchair.dart';
+import 'package:sws_app/services/firestore_service.dart';
 
 class SelectBondedDevicePage extends StatefulWidget {
   /// If true, on page start there is performed discovery upon the bonded devices.
   /// Then, if they are not avaliable, they would be disabled from the selection.
   final bool checkAvailability;
-  final Function onCahtPage;
+  final Function callBack;
 
   const SelectBondedDevicePage(
-      {this.checkAvailability = true, @required this.onCahtPage});
+      {this.checkAvailability = true, @required this.callBack});
 
   @override
   _SelectBondedDevicePage createState() => new _SelectBondedDevicePage();
@@ -26,12 +29,18 @@ class _DeviceWithAvailability extends BluetoothDevice {
   BluetoothDevice device;
   _DeviceAvailability availability;
   int rssi;
+  @override
+  String toString() {
+    return '{ device:$device, availability:$availability, rssi:$rssi }';
+  }
 
   _DeviceWithAvailability(this.device, this.availability, [this.rssi]);
 }
 
 class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
-  List<_DeviceWithAvailability> devices = List<_DeviceWithAvailability>();
+  List<_DeviceWithAvailability> devices = <_DeviceWithAvailability>[];
+  StreamController<List<_DeviceWithAvailability>> filteredDeviceStream =
+      StreamController<List<_DeviceWithAvailability>>();
 
   // Availability
   StreamSubscription<BluetoothDiscoveryResult> _discoveryStreamSubscription;
@@ -50,20 +59,23 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
     }
 
     // Setup a list of the bonded devices
+
     FlutterBluetoothSerial.instance
         .getBondedDevices()
         .then((List<BluetoothDevice> bondedDevices) {
+      List<_DeviceWithAvailability> result = bondedDevices
+          .map(
+            (device) => _DeviceWithAvailability(
+              device,
+              widget.checkAvailability
+                  ? _DeviceAvailability.maybe
+                  : _DeviceAvailability.yes,
+            ),
+          )
+          .toList();
+      filterDevices(result);
       setState(() {
-        devices = bondedDevices
-            .map(
-              (device) => _DeviceWithAvailability(
-                device,
-                widget.checkAvailability
-                    ? _DeviceAvailability.maybe
-                    : _DeviceAvailability.yes,
-              ),
-            )
-            .toList();
+        devices = result;
       });
     });
   }
@@ -102,26 +114,51 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
   void dispose() {
     // Avoid memory leak (`setState` after dispose) and cancel discovery
     _discoveryStreamSubscription?.cancel();
+    filteredDeviceStream.close();
 
     super.dispose();
   }
 
+  void filterDevices(List<_DeviceWithAvailability> bondedDevices) async {
+    List<_DeviceWithAvailability> result = <_DeviceWithAvailability>[];
+
+    for (var i = 0; i < bondedDevices.length; i++) {
+      _DeviceWithAvailability bluetoothDevice = bondedDevices[i];
+      Wheelchair _wheelchair = await FirestoreService().getWheelchairDevice(
+          name: bluetoothDevice.device.name,
+          address: bluetoothDevice.device.address);
+      if (_wheelchair != null) result.add(bluetoothDevice);
+    }
+    print('result: ${result.toString()}');
+    filteredDeviceStream.sink.add(result);
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<BluetoothDeviceListEntry> list = devices
-        .map(
-          (_device) => BluetoothDeviceListEntry(
-            device: _device.device,
-            // rssi: _device.rssi,
-            // enabled: _device.availability == _DeviceAvailability.yes,
-            onTap: () {
-              widget.onCahtPage(_device.device);
-            },
-          ),
-        )
-        .toList();
-    return ListView(
-      children: list,
+    print('devices: $devices');
+    return StreamBuilder<List<_DeviceWithAvailability>>(
+      stream: filteredDeviceStream.stream,
+      builder: (context, snapshot) {
+        print('snapshot: ${snapshot.data}');
+        if (snapshot.hasData) {
+          List<BluetoothDeviceListEntry> list = snapshot.data
+              .map(
+                (_device) => BluetoothDeviceListEntry(
+                  device: _device.device,
+                  // rssi: _device.rssi,
+                  enabled: _device.availability == _DeviceAvailability.yes,
+                  onTap: () {
+                    widget.callBack(_device.device);
+                  },
+                ),
+              )
+              .toList();
+          return ListView(
+            children: list,
+          );
+        }
+        return Loading();
+      },
     );
   }
 }

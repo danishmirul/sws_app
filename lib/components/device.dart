@@ -4,12 +4,15 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 class BluetoothDeviceListEntry extends StatelessWidget {
   final Function onTap;
   final BluetoothDevice device;
+  final bool enabled;
 
-  BluetoothDeviceListEntry({this.onTap, @required this.device});
+  BluetoothDeviceListEntry(
+      {this.onTap, @required this.device, this.enabled = false});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      enabled: enabled,
       onTap: onTap,
       leading: Icon(Icons.devices),
       title: Text(
@@ -20,10 +23,13 @@ class BluetoothDeviceListEntry extends StatelessWidget {
         device.address.toString(),
         style: TextStyle(color: Colors.blue.shade600),
       ),
-      trailing: FlatButton(
+      trailing: TextButton(
         child: Text('Connect'),
-        onPressed: onTap,
-        color: Colors.blueAccent,
+        onPressed: enabled ? onTap : null,
+        style: TextButton.styleFrom(
+          backgroundColor: enabled ? Colors.blueAccent : Colors.grey,
+          textStyle: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
