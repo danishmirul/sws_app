@@ -29,7 +29,8 @@ class Support extends StatelessWidget {
                           size: size,
                           title: e.fullname,
                           asset: 'assets/icons/customer_support_64px.png',
-                          onPress: () => _launchURL("tel:${e.phone}"),
+                          onPress: () async =>
+                              await _makePhoneCall('tel:${e.phone}'),
                         ))
                     .toList(),
               ),
@@ -40,6 +41,18 @@ class Support extends StatelessWidget {
         }
       },
     );
+  }
+
+  Future<void> _makePhoneCall(String url) async {
+    try {
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        print('Could not launch $url');
+      }
+    } catch (e) {
+      print('Catch: $e');
+    }
   }
 
   void _launchURL(String _url) async => await canLaunch(_url)

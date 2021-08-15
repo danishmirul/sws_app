@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:swipedetector/swipedetector.dart';
 import 'package:sws_app/components/constants.dart';
 import 'package:sws_app/models/direction.dart';
 
@@ -26,9 +25,14 @@ class _SwipeState extends State<Swipe> {
     super.dispose();
   }
 
+  //Vertical drag details
+  DragStartDetails startVerticalDragDetails;
+  DragUpdateDetails updateVerticalDragDetails;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: cDefaultPadding),
@@ -39,7 +43,40 @@ class _SwipeState extends State<Swipe> {
             Container(
               height: size.height * 0.5,
               width: size.width,
-              child: SwipeDetector(
+              child: GestureDetector(
+                onVerticalDragStart: (dragDetails) {
+                  startVerticalDragDetails = dragDetails;
+                },
+                onVerticalDragUpdate: (dragDetails) {
+                  updateVerticalDragDetails = dragDetails;
+                },
+                onVerticalDragEnd: (endDetails) {
+                  double dx = updateVerticalDragDetails.globalPosition.dx -
+                      startVerticalDragDetails.globalPosition.dx;
+                  double dy = updateVerticalDragDetails.globalPosition.dy -
+                      startVerticalDragDetails.globalPosition.dy;
+                  double velocity = endDetails.primaryVelocity;
+
+                  // //Convert values to be positive
+                  // print('SWIPE dx $dx');
+                  // print('SWIPE dy $dy');
+                  // print('SWIPE velocity $velocity');
+
+                  // if (dx < 0) dx = -dx;
+                  // if (dy < 0) dy = -dy;
+
+                  if (velocity < 0) {
+                    widget.updateDirection('Forward');
+                  } else if (velocity > 0) {
+                    widget.updateDirection('Stop');
+                  } else {
+                    if (dx > 0) {
+                      widget.updateDirection('Right');
+                    } else {
+                      widget.updateDirection('Left');
+                    }
+                  }
+                },
                 child: Card(
                   child: Padding(
                     padding: EdgeInsets.all(cDefaultPadding),
@@ -69,17 +106,6 @@ class _SwipeState extends State<Swipe> {
                     ),
                   ),
                 ),
-                onSwipeUp: () => widget.updateDirection('Forward'),
-                onSwipeDown: () => widget.updateDirection('Stop'),
-                onSwipeLeft: () => widget.updateDirection('Left'),
-                onSwipeRight: () => widget.updateDirection('Right'),
-                swipeConfiguration: SwipeConfiguration(
-                    verticalSwipeMinVelocity: 100.0,
-                    verticalSwipeMinDisplacement: 50.0,
-                    verticalSwipeMaxWidthThreshold: 100.0,
-                    horizontalSwipeMaxHeightThreshold: 50.0,
-                    horizontalSwipeMinDisplacement: 50.0,
-                    horizontalSwipeMinVelocity: 200.0),
               ),
             ),
             Spacer(),

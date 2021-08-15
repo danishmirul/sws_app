@@ -27,11 +27,11 @@ class Path {
 
   // initialised through snapshot
   Path.fromSnapShot(DocumentSnapshot snapshot) {
-    this.uid = snapshot.documentID;
-    this.wheelchairId = snapshot.data['wheelchairId'];
-    this.origin = snapshot.data['origin'];
-    this.destination = snapshot.data['destination'];
-    this.createdAt = snapshot.data['createdAt'].toDate();
+    this.uid = snapshot.id;
+    this.wheelchairId = snapshot.get(FieldPath(['wheelchairId']));
+    this.origin = snapshot.get(FieldPath(['origin']));
+    this.destination = snapshot.get(FieldPath(['destination']));
+    this.createdAt = snapshot.get(FieldPath(['createdAt'])).toDate();
   }
 
   // map to object

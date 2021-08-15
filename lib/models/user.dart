@@ -43,13 +43,13 @@ class User {
 
   // initialised through snapshot
   User.fromSnapShot(DocumentSnapshot snapshot) {
-    this.uid = snapshot.documentID;
-    this.fullname = snapshot.data['fullname'];
-    this.email = snapshot.data['email'];
-    this.phone = snapshot.data['phone'];
-    this.hotline = snapshot.data['hotline'];
-    this.accessible = snapshot.data['accessible'];
-    this.createdAt = snapshot.data['createdAt'].toDate();
+    this.uid = snapshot.id;
+    this.fullname = snapshot.get(FieldPath(['fullname']));
+    this.email = snapshot.get(FieldPath(['email']));
+    this.phone = snapshot.get(FieldPath(['phone']));
+    this.hotline = snapshot.get(FieldPath(['hotline']));
+    this.accessible = snapshot.get(FieldPath(['accessible']));
+    this.createdAt = snapshot.get(FieldPath(['createdAt'])).toDate();
   }
 
   // map to object

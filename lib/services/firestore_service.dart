@@ -8,10 +8,12 @@ import 'package:sws_app/models/wheelchair.dart';
 import './firestore_path.dart';
 
 class FirestoreService {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   CollectionReference wheelchairs =
-      Firestore.instance.collection('wheelchairs');
-  CollectionReference users = Firestore.instance.collection('users');
-  CollectionReference msgLogs = Firestore.instance.collection('msgLogs');
+      FirebaseFirestore.instance.collection('wheelchairs');
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  CollectionReference msgLogs =
+      FirebaseFirestore.instance.collection('msgLogs');
 
   Future<bool> createNewDocument(
       CollectionReference collectionReference, dynamic data) async {
@@ -27,13 +29,14 @@ class FirestoreService {
   Future<DocumentSnapshot> getDocumentById(
       CollectionReference collectionReference, String id) async {
     try {
-      final querySnapshot = await collectionReference
-          .where(FieldPath.documentId, isEqualTo: id)
-          .getDocuments();
-
-      final documents = querySnapshot.documents;
-
-      return documents.length > 0 ? documents[0] : null;
+      await collectionReference
+          .doc(id)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          return documentSnapshot.data();
+        }
+      });
     } catch (e) {
       print(e);
       return null;
@@ -43,8 +46,8 @@ class FirestoreService {
   Future<List<DocumentSnapshot>> getDocuments(
       CollectionReference collectionReference) async {
     try {
-      final querySnapshot = await collectionReference.getDocuments();
-      final documents = querySnapshot.documents;
+      final querySnapshot = await collectionReference.get();
+      final documents = querySnapshot.docs;
       return documents;
     } catch (e) {
       print(e);
@@ -54,8 +57,8 @@ class FirestoreService {
 
   Future<List<DocumentSnapshot>> getDocumentsQeury(Query query) async {
     try {
-      final querySnapshot = await query.getDocuments();
-      final documents = querySnapshot.documents;
+      final querySnapshot = await query.get();
+      final documents = querySnapshot.docs;
       return documents;
     } catch (e) {
       print(e);
@@ -66,7 +69,7 @@ class FirestoreService {
   Future<bool> setDocument(
       DocumentReference documentReference, dynamic data) async {
     try {
-      await documentReference.setData(data.toMap());
+      await documentReference.set(data.toMap());
       return true;
     } catch (e) {
       print(e);
@@ -113,16 +116,15 @@ class FirestoreService {
 
   // Get
   Future getWheelchair(String id) async {
-    final doc = await wheelchairs.document(id).get();
+    final doc = await wheelchairs.doc(id).get();
     return Wheelchair.fromSnapShot(doc);
   }
 
   // Get
   Future<List<User>> getSupporters() async {
-    final querySnapshot =
-        await users.where('hotline', isEqualTo: true).getDocuments();
+    final querySnapshot = await users.where('hotline', isEqualTo: true).get();
 
-    final documents = querySnapshot.documents;
+    final documents = querySnapshot.docs;
     List<User> supporters = [];
     documents.forEach((e) => supporters.add(User.fromSnapShot(e)));
 
@@ -136,9 +138,9 @@ class FirestoreService {
         .where('name', isEqualTo: name)
         .where('address', isEqualTo: address)
         .where('accessible', isEqualTo: true)
-        .getDocuments();
+        .get();
 
-    final documents = querySnapshot.documents;
+    final documents = querySnapshot.docs;
 
     if (documents.length > 0) {
       return Wheelchair.fromSnapShot(documents[0]);
@@ -148,9 +150,8 @@ class FirestoreService {
 
   void updateBatteryWheelchair(String id, String battery) {
     wheelchairs
-        .document(id)
-        .updateData(
-            {'battery': battery, 'status': battery == 'HIGH' ? 'A' : 'U'})
+        .doc(id)
+        .update({'battery': battery, 'status': battery == 'HIGH' ? 'A' : 'U'})
         .then((value) => print("Battery Wheelchair Updated"))
         .catchError(
             (error) => print("Failed to update status wheelchair: $error"));
@@ -164,7 +165,7 @@ class FirestoreService {
   }
 
   void updateWheelchair(Wheelchair wheelchair) {
-    wheelchairs.document(wheelchair.uid).setData(wheelchair.toMap());
+    wheelchairs.doc(wheelchair.uid).set(wheelchair.toMap());
   }
 
   // Reads the current user data
@@ -172,12 +173,12 @@ class FirestoreService {
     try {
       print('UID: $uid');
       final path = FirestorePath.wheelchairPath(uid);
-      final reference = Firestore.instance.document(path);
+      final reference = FirebaseFirestore.instance.doc(path);
       final snapshots = reference.snapshots();
 
       print('snapshots: $snapshots');
       return snapshots
-          .map((snapshot) => Wheelchair.fromMap(uid, snapshot.data));
+          .map((snapshot) => Wheelchair.fromMap(uid, snapshot.data()));
     } catch (e) {
       print(e);
       return null;
@@ -188,8 +189,8 @@ class FirestoreService {
   Future<void> setWheelchairReference(Wheelchair wheelchairReference) async {
     try {
       final path = FirestorePath.wheelchairPath(wheelchairReference.uid);
-      final reference = Firestore.instance.document(path);
-      await reference.setData(wheelchairReference.toMap());
+      final reference = FirebaseFirestore.instance.doc(path);
+      await reference.set(wheelchairReference.toMap());
     } catch (e) {
       print(e);
       return null;

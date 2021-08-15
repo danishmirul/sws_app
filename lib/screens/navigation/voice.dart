@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+// import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:sws_app/components/constants.dart';
+import 'package:sws_app/components/custom_text.dart';
 import 'package:sws_app/models/direction.dart';
 
-class VoiceWidget extends StatefulWidget {
-  VoiceWidget(
-      {@required this.direction, @required this.updateDirection, Key key})
-      : super(key: key);
+class Voice extends StatefulWidget {
   final Direction direction;
   final Function updateDirection;
+  Voice({@required this.direction, @required this.updateDirection, Key key})
+      : super(key: key);
 
   @override
-  _VoiceWidgetState createState() => _VoiceWidgetState();
+  _VoiceState createState() => _VoiceState();
 }
 
-class _VoiceWidgetState extends State<VoiceWidget> {
-  stt.SpeechToText _speech;
-  bool _isListening = false;
-  String _text = 'Press the button and start speaking';
-  double _confidence = 1.0;
+class _VoiceState extends State<Voice> {
+  String text = 'Voice';
+  bool isListening = false;
 
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
     widget.updateDirection('Stop');
   }
 
@@ -37,100 +35,120 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Container(
-      width: size.width,
-      child: Column(
-        children: [
-          Container(
-            height: size.height * 0.6,
-            width: size.width,
-            child: Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _text,
-                    style: TextStyle(fontSize: 32.0, color: cSecondaryColor),
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    'Direction',
-                    style: TextStyle(fontSize: 24.0),
-                  ),
-                  Container(
-                    child: ColorFiltered(
-                      child: Image.asset(widget.direction.asset),
-                      colorFilter: ColorFilter.mode(
-                          widget.direction.color, BlendMode.modulate),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: cDefaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Spacer(),
+            Container(
+              height: size.height * 0.8,
+              decoration: BoxDecoration(
+                color: isListening ? Colors.amber : Colors.white,
+              ),
+              child: Container(
+                width: size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      height: size.height * 0.6,
+                      width: size.width,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              text,
+                              style: TextStyle(
+                                  fontSize: 32.0, color: cSecondaryColor),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              'Direction',
+                              style: TextStyle(fontSize: 24.0),
+                            ),
+                            Container(
+                              child: ColorFiltered(
+                                child: Image.asset(widget.direction.asset),
+                                colorFilter: ColorFilter.mode(
+                                    widget.direction.color, BlendMode.modulate),
+                              ),
+                            ),
+                            Text(
+                              widget.direction != null
+                                  ? widget.direction.label
+                                  : '',
+                              style: TextStyle(
+                                  fontSize: 24.0,
+                                  color: widget.direction.color),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  Text(
-                    widget.direction != null ? widget.direction.label : '',
-                    style: TextStyle(
-                        fontSize: 24.0, color: widget.direction.color),
-                  ),
-                ],
+                    AvatarGlow(
+                      animate: isListening,
+                      glowColor: Colors.indigo,
+                      endRadius: 75.0,
+                      duration: const Duration(milliseconds: 2000),
+                      repeatPauseDuration: const Duration(milliseconds: 100),
+                      repeat: true,
+                      child: FloatingActionButton(
+                        onPressed: toggleRecording,
+                        child: Icon(isListening ? Icons.mic : Icons.mic_none),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          AvatarGlow(
-            animate: _isListening,
-            glowColor: Theme.of(context).primaryColor,
-            endRadius: 75.0,
-            duration: const Duration(milliseconds: 2000),
-            repeatPauseDuration: const Duration(milliseconds: 100),
-            repeat: true,
-            child: FloatingActionButton(
-              onPressed: _listen,
-              child: Icon(_isListening ? Icons.mic : Icons.mic_none),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  void _listen() async {
-    if (!_isListening) {
-      widget.updateDirection('Stop');
-      bool available = await _speech.initialize(
-        onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            _text = val.recognizedWords;
-            if (val.hasConfidenceRating && val.confidence > 0) {
-              _confidence = val.confidence;
-            }
-          }),
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
-      updateDirection();
-    }
+  Future toggleRecording() {
+    widget.updateDirection('Stop');
+    return SpeechApi.toggleRecording(
+      onResult: (text) {
+        setState(() => this.text = text);
+        updateDirection(text);
+      },
+      onListening: (isListening) {
+        setState(() => this.isListening = isListening);
+      },
+    );
   }
 
-  void updateDirection() {
-    print('Confidence: $_confidence');
-    switch (_text) {
+  void updateDirection(String text) {
+    switch (text) {
+      case 'up':
+      case 'Up':
+      case 'front':
+      case 'Front':
       case 'forward':
       case 'forwards':
       case 'Forward':
       case 'Forwards':
         widget.updateDirection('Forward');
         break;
+      case 'down':
+      case 'Down':
+      case 'reverse':
+      case 'Reverse':
       case 'backward':
       case 'backwards':
       case 'Backward':
       case 'Backwards':
         widget.updateDirection('Backward');
         break;
+      case 'Breaks':
+      case 'breaks':
+      case 'Break':
+      case 'break':
       case 'stop':
       case 'stops':
       case 'Stop':
@@ -156,36 +174,27 @@ class _VoiceWidgetState extends State<VoiceWidget> {
   }
 }
 
-class Voice extends StatelessWidget {
-  const Voice(
-      {@required this.direction, @required this.updateDirection, Key key})
-      : super(key: key);
-  final Direction direction;
-  final Function updateDirection;
+class SpeechApi {
+  static final _speech = SpeechToText();
 
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: cDefaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Spacer(),
-            Container(
-              height: size.height * 0.8,
-              decoration: BoxDecoration(
-                color: cAccentColor,
-              ),
-              child: VoiceWidget(
-                direction: direction,
-                updateDirection: updateDirection,
-              ),
-            ),
-          ],
-        ),
-      ),
+  static Future<bool> toggleRecording({
+    @required Function(String text) onResult,
+    @required ValueChanged<bool> onListening,
+  }) async {
+    if (_speech.isListening) {
+      _speech.stop();
+      return true;
+    }
+
+    final isAvailable = await _speech.initialize(
+      onStatus: (status) => onListening(_speech.isListening),
+      onError: (e) => print('Error: $e'),
     );
+
+    if (isAvailable) {
+      _speech.listen(onResult: (value) => onResult(value.recognizedWords));
+    }
+
+    return isAvailable;
   }
 }

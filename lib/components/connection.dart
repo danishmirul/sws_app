@@ -146,8 +146,9 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
                 (_device) => BluetoothDeviceListEntry(
                   device: _device.device,
                   // rssi: _device.rssi,
-                  enabled: _device.availability == _DeviceAvailability.yes,
+                  enabled: _device.availability != _DeviceAvailability.no,
                   onTap: () {
+                    filteredDeviceStream.close();
                     widget.callBack(_device.device);
                   },
                 ),

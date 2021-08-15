@@ -9,7 +9,8 @@ class MessageController {
 
   final FirestoreService firestoreService;
 
-  CollectionReference msgLogs = Firestore.instance.collection('msgLogs/');
+  CollectionReference msgLogs =
+      FirebaseFirestore.instance.collection('msgLogs/');
 
   //  STREAM
 

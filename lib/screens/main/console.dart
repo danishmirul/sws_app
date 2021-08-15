@@ -83,31 +83,32 @@ class _Console extends State<Console> {
                 controller: widget.listScrollController,
                 children: list),
           ),
-          Row(
-            children: <Widget>[
-              Flexible(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 16.0),
-                  child: TextField(
-                    style: const TextStyle(
-                        fontSize: 15.0, color: Colors.deepPurpleAccent),
-                    controller: widget.textEditingController,
-                    decoration: InputDecoration.collapsed(
-                      hintText: 'Type your message...',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.all(8.0),
-                child: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () =>
-                        widget.sendMessage(widget.textEditingController.text)),
-              ),
-            ],
-          )
+          // Row(
+          //   children: <Widget>[
+          //     Flexible(
+          //       child: Container(
+          //         margin: const EdgeInsets.only(left: 16.0),
+          //         child: TextField(
+          //           style: const TextStyle(
+          //               fontSize: 15.0, color: Colors.deepPurpleAccent),
+          //           controller: widget.textEditingController,
+          //           onChanged: ,
+          //           decoration: InputDecoration.collapsed(
+          //             hintText: 'Type your message...',
+          //             hintStyle: const TextStyle(color: Colors.grey),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //     Container(
+          //       margin: const EdgeInsets.all(8.0),
+          //       child: IconButton(
+          //           icon: const Icon(Icons.send),
+          //           onPressed: () =>
+          //               widget.sendMessage(widget.textEditingController.text)),
+          //     ),
+          //   ],
+          // )
         ],
       ),
     );

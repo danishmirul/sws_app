@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Location {
+class Coordinate {
   String uid;
   List data;
   DateTime createdAt;
 
-  Location({
+  Coordinate({
     this.uid,
     this.data,
     createdAt,
@@ -16,7 +16,7 @@ class Location {
       this.createdAt = createdAt;
   }
 
-  Location.copy(Location from)
+  Coordinate.copy(Coordinate from)
       : this(
           uid: from.uid,
           data: from.data,
@@ -27,14 +27,14 @@ class Location {
   String toString() => "{ uid:${this.uid}, data:${this.data} }";
 
   // initialised through snapshot
-  Location.fromSnapShot(DocumentSnapshot snapshot) {
+  Coordinate.fromSnapShot(DocumentSnapshot snapshot) {
     this.uid = snapshot.id;
     this.data = snapshot.get(FieldPath(['data']));
     this.createdAt = snapshot.get(FieldPath(['createdAt'])).toDate();
   }
 
   // map to object
-  factory Location.fromMap(uid, Map<String, dynamic> data) {
+  factory Coordinate.fromMap(uid, Map<String, dynamic> data) {
     if (data == null || uid == null) {
       return null;
     }
@@ -47,7 +47,7 @@ class Location {
       return null;
     }
 
-    return Location(
+    return Coordinate(
       uid: uid,
       data: _data,
       createdAt: createdAt,

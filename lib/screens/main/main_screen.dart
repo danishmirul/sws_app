@@ -54,6 +54,7 @@ class _MainScreen extends State<MainScreen> {
   String speed = '60';
   bool move = false;
   bool collided = false;
+  bool detectObstacle = false;
   bool reversing = false;
   bool readyNavigate = false;
   bool readBattery = false;
@@ -152,10 +153,13 @@ class _MainScreen extends State<MainScreen> {
     }
   }
 
-  void setSpeed(String param) {
-    setState(() {
+  void setSpeed(String param, {bool auto = false}) {
+    if (!auto)
+      setState(() {
+        speed = param;
+      });
+    else
       speed = param;
-    });
   }
 
   void _onDataReceived(Uint8List data) {
@@ -242,7 +246,7 @@ class _MainScreen extends State<MainScreen> {
               text: 'Collision Detected left Side');
           updateDirection('Stop');
         } else {
-          collided = false;
+          if (!detectObstacle) collided = false;
           msg = Message(
               wheelchairId: _wheelchair.uid,
               whom: 1,
@@ -252,14 +256,16 @@ class _MainScreen extends State<MainScreen> {
       } else if (readDistance) {
         // Distance Sensor Signal
 
-
-
         // extract out #
         String _dataString = dataString.substring(1);
 
-        if(double.tryParse(_dataString) < 13 && !reversing){
+        if (double.tryParse(_dataString) < 13 && !reversing) {
           collided = true;
+          detectObstacle = true;
           updateDirection('Stop');
+        } else {
+          collided = false;
+          detectObstacle = false;
         }
         msg = Message(
             wheelchairId: _wheelchair.uid,
@@ -359,6 +365,7 @@ class _MainScreen extends State<MainScreen> {
   }
 
   void setCurrentView({String param = ''}) {
+    print('PARAM: $param');
     if (param.isEmpty) {
       if (view == 'dashboard') {
         Navigator.pop(context);
@@ -567,13 +574,14 @@ class _MainScreen extends State<MainScreen> {
       case 'semiauto':
         readyNavigate = true;
         _currentView = SemiAuto(
+          collided: collided,
           direction: _direction,
           updateDirection: updateDirection,
           wheelchair: widget.wheelchair,
+          setSpeed: setSpeed,
         );
         break;
       case 'console':
-        readyNavigate = true;
         _currentView = Console(
           size: size,
           messages: messages,
@@ -598,24 +606,27 @@ class _MainScreen extends State<MainScreen> {
         );
     }
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          _buildHeader(size),
-          _currentView,
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: cDefaultPadding * 2,
-                  horizontal: cDefaultPadding * 0.5),
-              child: IconButton(
-                onPressed: () => setCurrentView(),
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            _buildHeader(size),
+            _currentView,
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: cDefaultPadding * 2,
+                    horizontal: cDefaultPadding * 0.5),
+                child: IconButton(
+                  onPressed: () => setCurrentView(),
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

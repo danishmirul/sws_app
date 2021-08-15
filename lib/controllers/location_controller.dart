@@ -12,16 +12,25 @@ class LocationController {
 
   final FirestoreService firestoreService;
 
-  CollectionReference locations = Firestore.instance.collection('locations');
+  CollectionReference locations =
+      FirebaseFirestore.instance.collection('locations');
+  CollectionReference coordinates =
+      FirebaseFirestore.instance.collection('coordinates');
 
   // Get
-  Stream<QuerySnapshot> wheelchairlocationStream(String idWheelchair,
-      {int length = 10}) {
+  Stream<QuerySnapshot> liveLocationStream() {
     try {
-      final query = locations
-          .where('wheelchairID', isEqualTo: idWheelchair)
-          .orderBy('createdAt', descending: true)
-          .limit(length);
+      final query = locations.orderBy('createdAt', descending: true).limit(1);
+      return firestoreService.getDocumentsSnapshotQuery(query);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Stream<QuerySnapshot> coordinatesStream() {
+    try {
+      final query = coordinates.orderBy('createdAt', descending: true).limit(1);
       return firestoreService.getDocumentsSnapshotQuery(query);
     } catch (e) {
       print(e);

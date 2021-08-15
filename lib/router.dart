@@ -7,9 +7,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case homeRoute:
       // return MaterialPageRoute(builder: (context) => HomeScreen());
-      return MaterialPageRoute(builder: (context) => MyApp());
+      return MaterialPageRoute(builder: (context) => App());
     case homeRoute:
-      return MaterialPageRoute(builder: (context) => MyApp());
+      return MaterialPageRoute(builder: (context) => App());
     // case 'login':
     //   return MaterialPageRoute(builder: (context) => LoginView());
     default:

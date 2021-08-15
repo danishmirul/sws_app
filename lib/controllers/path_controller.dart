@@ -9,7 +9,7 @@ class PathController {
 
   final FirestoreService firestoreService;
 
-  CollectionReference paths = Firestore.instance.collection('paths/');
+  CollectionReference paths = FirebaseFirestore.instance.collection('paths/');
 
   //  STREAM
 

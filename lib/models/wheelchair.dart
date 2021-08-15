@@ -46,16 +46,16 @@ class Wheelchair {
 
   // initialised through snapshot
   Wheelchair.fromSnapShot(DocumentSnapshot snapshot) {
-    this.uid = snapshot.documentID;
+    this.uid = snapshot.id;
     // this.uuid = snapshot.data['uuid'];
-    this.name = snapshot.data['name'];
-    this.address = snapshot.data['address'];
-    this.plate = snapshot.data['plate'];
-    this.battery = snapshot.data['battery'];
-    this.status = snapshot.data['status'];
+    this.name = snapshot.get(FieldPath(['name']));
+    this.address = snapshot.get(FieldPath(['address']));
+    this.plate = snapshot.get(FieldPath(['plate']));
+    this.battery = snapshot.get(FieldPath(['battery']));
+    this.status = snapshot.get(FieldPath(['status']));
     // this.logs = snapshot.data['logs'];
-    this.accessible = snapshot.data['accessible'];
-    this.createdAt = snapshot.data['createdAt'].toDate();
+    this.accessible = snapshot.get(FieldPath(['accessible']));
+    this.createdAt = snapshot.get(FieldPath(['createdAt'])).toDate();
   }
 
   // map to object

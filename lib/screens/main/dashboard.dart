@@ -41,10 +41,16 @@ class Dashboard extends StatelessWidget {
         child: Center(
           child: (isConnecting
               ? CustomText(
-                  text: 'Connecting chat to ' + wheelchair.name + '...')
+                  text: 'Connecting  to ' + wheelchair.name + '...',
+                  color: Colors.deepOrange,
+                )
               : isConnected
-                  ? CustomText(text: 'Live chat with ' + wheelchair.name)
-                  : CustomText(text: 'Chat log with ' + wheelchair.name)),
+                  ? CustomText(
+                      text: 'Connected with ' + wheelchair.name,
+                      color: cSecondaryColor,
+                      weight: FontWeight.bold,
+                    )
+                  : CustomText(text: 'Disconnected with ' + wheelchair.name)),
         ),
       );
 
@@ -130,14 +136,18 @@ class Dashboard extends StatelessWidget {
                   title: 'D-Pad',
                   asset: 'assets/icons/game_controller_64px.png',
                   enabled: isConnected,
-                  onPress: isConnected ? () => setView(param: 'dpad') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'dpad');
+                  },
                 ),
                 MenuButton(
                   size: size,
                   title: 'Voice',
                   asset: 'assets/icons/voice_64px.png',
                   enabled: isConnected,
-                  onPress: isConnected ? () => setView(param: 'voice') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'voice');
+                  },
                 ),
               ],
             ),
@@ -150,15 +160,18 @@ class Dashboard extends StatelessWidget {
                   title: 'Swipe',
                   asset: 'assets/icons/swipe_right_gesture_64px.png',
                   enabled: isConnected,
-                  onPress: isConnected ? () => setView(param: 'swipe') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'swipe');
+                  },
                 ),
                 MenuButton(
                   size: size,
                   title: 'Tilt',
                   asset: 'assets/icons/tilt_64px.png',
                   enabled: isConnected,
-                  onPress:
-                      isConnected ? () => () => setView(param: 'accel') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'accel');
+                  },
                 ),
               ],
             ),
@@ -171,8 +184,9 @@ class Dashboard extends StatelessWidget {
                   title: 'Semi-Auto',
                   asset: 'assets/icons/autopilot_96px.png',
                   enabled: isConnected,
-                  onPress:
-                      isConnected ? () => setView(param: 'semiauto') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'semiauto');
+                  },
                 ),
               ],
             ),
@@ -191,7 +205,9 @@ class Dashboard extends StatelessWidget {
                   title: 'Console',
                   asset: 'assets/icons/console_64px.png',
                   enabled: isConnected,
-                  onPress: isConnected ? () => setView(param: 'console') : null,
+                  onPress: () {
+                    if (isConnected) setView(param: 'console');
+                  },
                 ),
                 MenuButton(
                   size: size,

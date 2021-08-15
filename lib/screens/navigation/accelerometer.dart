@@ -162,44 +162,37 @@ class _AccelerometerState extends State<Accelerometer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                    'x: ${(event != null ? event.x ?? 0 : 0).toStringAsFixed(3)}'),
-                Text(
-                    'y: ${(event != null ? event?.y ?? 0 : 0).toStringAsFixed(3)}'),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: RaisedButton(
-                    onPressed: startTimer,
-                    child: Text('Begin'),
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
             Align(
               alignment: Alignment.center,
               child: Column(
                 children: [
                   Text(
-                    'Direction',
-                    style: TextStyle(fontSize: 24.0),
+                    widget.direction.label,
+                    style: TextStyle(
+                        fontSize: 36.0, color: widget.direction.color),
                   ),
                   Container(
-                    child: ColorFiltered(
-                      child: Image.asset(widget.direction.asset),
-                      colorFilter: ColorFilter.mode(
-                          widget.direction.color, BlendMode.modulate),
+                    height: size.width * 0.2,
+                    width: size.width * 0.2,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(widget.direction.asset),
+                        colorFilter: ColorFilter.mode(
+                            widget.direction.color, BlendMode.modulate),
+                      ),
                     ),
                   ),
-                  Text(
-                    widget.direction != null ? widget.direction.label : '',
-                    style: TextStyle(
-                        fontSize: 24.0, color: widget.direction.color),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: TextButton(
+                      onPressed: startTimer,
+                      child: Text('Begin'),
+                      style: TextButton.styleFrom(
+                        primary: Colors.white,
+                        backgroundColor: cSecondaryColor,
+                      ),
+                    ),
                   ),
                 ],
               ),

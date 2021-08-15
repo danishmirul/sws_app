@@ -29,13 +29,13 @@ class Message {
 
   // initialised through snapshot
   Message.fromSnapShot(DocumentSnapshot snapshot) {
-    this.uid = snapshot.documentID;
+    this.uid = snapshot.id;
     // this.uuid = snapshot.data['uuid'];
-    this.wheelchairId = snapshot.data['wheelchairId'];
-    this.whom = snapshot.data['whom'] as num;
-    this.label = snapshot.data['label'];
-    this.text = snapshot.data['text'];
-    this.createdAt = snapshot.data['createdAt'].toDate();
+    this.wheelchairId = snapshot.get(FieldPath(['wheelchairId']));
+    this.whom = snapshot.get(FieldPath(['whom'])) as num;
+    this.label = snapshot.get(FieldPath(['label']));
+    this.text = snapshot.get(FieldPath(['text']));
+    this.createdAt = snapshot.get(FieldPath(['createdAt'])).toDate();
   }
 
   // map to object

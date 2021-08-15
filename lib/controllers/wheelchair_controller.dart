@@ -12,7 +12,7 @@ class WheelchairController {
   final FirestoreService firestoreService;
 
   CollectionReference wheelchairs =
-      Firestore.instance.collection('wheelchairs');
+      FirebaseFirestore.instance.collection('wheelchairs');
 
   //  CRUD
   //  CREATE
@@ -33,7 +33,7 @@ class WheelchairController {
 
     List<Wheelchair> wheelchairList = <Wheelchair>[];
     wheelchairList =
-        documents.map((e) => Wheelchair.fromMap(e.documentID, e.data)).toList();
+        documents.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
     return wheelchairList;
   }
@@ -48,7 +48,7 @@ class WheelchairController {
 
     List<Wheelchair> wheelchairList = <Wheelchair>[];
     wheelchairList =
-        documents.map((e) => Wheelchair.fromMap(e.documentID, e.data)).toList();
+        documents.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
     return wheelchairList;
   }
@@ -72,9 +72,8 @@ class WheelchairController {
           paginatedDocumentList = snapshots;
 
           List<Wheelchair> wheelchairList = <Wheelchair>[];
-          wheelchairList = snapshots
-              .map((e) => Wheelchair.fromMap(e.documentID, e.data))
-              .toList();
+          wheelchairList =
+              snapshots.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
           index = wheelchairList.length;
 
@@ -89,9 +88,8 @@ class WheelchairController {
           paginatedDocumentList.addAll(snapshots);
 
           List<Wheelchair> wheelchairList = <Wheelchair>[];
-          wheelchairList = snapshots
-              .map((e) => Wheelchair.fromMap(e.documentID, e.data))
-              .toList();
+          wheelchairList =
+              snapshots.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
           index = paginatedDocumentList.length;
 
@@ -117,9 +115,8 @@ class WheelchairController {
           index = paginatedDocumentList.length;
 
           List<Wheelchair> wheelchairList = <Wheelchair>[];
-          wheelchairList = snapshots
-              .map((e) => Wheelchair.fromMap(e.documentID, e.data))
-              .toList();
+          wheelchairList =
+              snapshots.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
           print('wheelchairList: ${wheelchairList.length}');
           return wheelchairList;
@@ -135,9 +132,8 @@ class WheelchairController {
           index = paginatedDocumentList.length;
 
           List<Wheelchair> wheelchairList = <Wheelchair>[];
-          wheelchairList = snapshots
-              .map((e) => Wheelchair.fromMap(e.documentID, e.data))
-              .toList();
+          wheelchairList =
+              snapshots.map((e) => Wheelchair.fromMap(e.id, e.data())).toList();
 
           return wheelchairList;
         }
@@ -151,7 +147,7 @@ class WheelchairController {
   //  UPDATE
   Future<bool> updateWheelchair(Wheelchair wheelchair) async {
     final path = FirestorePath.wheelchairPath(wheelchair.uid);
-    final docRef = Firestore.instance.document(path);
+    final docRef = FirebaseFirestore.instance.doc(path);
     return await firestoreService.setDocument(docRef, wheelchair);
   }
 
@@ -159,10 +155,10 @@ class WheelchairController {
   Stream<Wheelchair> wheelchairReferenceStream(String id) {
     try {
       final path = FirestorePath.wheelchairPath(id);
-      final docRef = Firestore.instance.document(path);
+      final docRef = FirebaseFirestore.instance.doc(path);
       final snapshots = firestoreService.getDocumentSnapshot(docRef);
       final stream =
-          snapshots.map((snapshot) => Wheelchair.fromMap(id, snapshot.data));
+          snapshots.map((snapshot) => Wheelchair.fromMap(id, snapshot.data()));
 
       print('Stream: $stream');
 
@@ -176,8 +172,8 @@ class WheelchairController {
   Stream<List<Wheelchair>> wheelchairsReferenceStream() {
     try {
       final snapshots = firestoreService.getDocumentsSnapshot(wheelchairs);
-      final stream = snapshots.map((snapshot) => snapshot.documents
-          .map((doc) => Wheelchair.fromMap(doc.documentID, doc.data))
+      final stream = snapshots.map((snapshot) => snapshot.docs
+          .map((doc) => Wheelchair.fromMap(doc.id, doc.data()))
           .toList());
 
       print('Stream: $stream');

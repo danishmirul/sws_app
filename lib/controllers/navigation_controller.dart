@@ -12,7 +12,7 @@ class NavigationController {
   final FirestoreService firestoreService;
 
   CollectionReference navigations =
-      Firestore.instance.collection('navigations');
+      FirebaseFirestore.instance.collection('navigations');
 
   Future<bool> createNavigation(Navigation navigation) async {
     return await firestoreService.createNewDocument(navigations, navigation);
@@ -21,19 +21,18 @@ class NavigationController {
   // Get
   Stream<Navigation> navigationStream(String uid) {
     try {
-      final path = FirestorePath.navigationPath(uid);
-      final reference = Firestore.instance.document(path);
-      final snapshots = reference.snapshots();
-
-      return snapshots
-          .map((snapshot) => Navigation.fromMap(uid, snapshot.data));
+      var stream = FirebaseFirestore.instance
+          .collection('navigations')
+          .doc(uid)
+          .snapshots();
+      return stream.map((document) => Navigation.fromMap(uid, document.data()));
     } catch (e) {
       print(e);
       return null;
     }
   }
 
-  Future<Map> fetchNavigation(String idWheelchair) async {
+  Future<Navigation> fetchNavigation(String idWheelchair) async {
     Query query = navigations.where('wheelchairID', isEqualTo: idWheelchair);
     final documents = await firestoreService.getDocumentsQeury(query);
 
@@ -41,17 +40,18 @@ class NavigationController {
       if (documents.length > 0) {
         Navigation navigation = Navigation.fromSnapShot(documents[0]);
 
-        return {'status': true, 'data': navigation};
+        return navigation;
       }
-      return {'status': false, 'data': null};
+      return null;
     }
 
-    return {'status': false, 'data': null};
+    return null;
   }
 
   Future<bool> updateNavigation(Navigation navigation) async {
-    final path = FirestorePath.navigationPath(navigation.uid);
-    final docRef = Firestore.instance.document(path);
+    final docRef = FirebaseFirestore.instance
+        .collection('navigations')
+        .doc(navigation.uid);
     try {
       return await firestoreService.setDocument(docRef, navigation);
     } catch (e) {
